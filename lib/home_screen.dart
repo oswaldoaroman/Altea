@@ -4,20 +4,35 @@ import 'widgets/voice_section.dart';
 import 'widgets/medico_section.dart';
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFE1F0F7),
-      appBar: AppBar(
-        title: Text("Informes y Servicios"),
-        backgroundColor: Color(0xFF004A99),
-      ),
-      body: ListView(
-        children: [
-          InformesSection(),
-          VoiceSection(),
-          MedicoSection(),
-        ],
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: const [
+            Text(
+              'Informes y Servicios',
+              style: TextStyle(
+                fontSize: 24,
+                color: Color(0xFF004A99),
+              ),
+            ),
+            SizedBox(height: 20),
+
+            InformesSection(),
+
+            SizedBox(height: 20),
+
+            VoiceSection(),
+
+            SizedBox(height: 20),
+
+            MedicoSection(),
+          ],
+        ),
       ),
     );
   }
