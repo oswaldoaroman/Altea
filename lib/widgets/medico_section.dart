@@ -1,46 +1,38 @@
 import 'package:flutter/material.dart';
 
 class MedicoSection extends StatelessWidget {
+  const MedicoSection({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return _card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Médicos y Laboratorios", style: TextStyle(fontSize: 20)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Encuentra Médicos y Laboratorios',
+          style: TextStyle(fontSize: 20),
+        ),
+        const SizedBox(height: 10),
 
-          ListTile(
-            leading: Icon(Icons.person),
-            title: Text("Dr. Ejemplo"),
-            subtitle: Text("0.6 km"),
-          ),
+        ListTile(
+          leading: const Icon(Icons.person),
+          title: const Text('Dr. Ejemplo'),
+          subtitle: const Text('(0.6 km)'),
+        ),
 
-          ListTile(
-            leading: Icon(Icons.science),
-            title: Text("Laboratorio XYZ"),
-            subtitle: Text("0.6 km"),
-          ),
+        ListTile(
+          leading: const Icon(Icons.science),
+          title: const Text('Laboratorio X'),
+          subtitle: const Text('(0.6 km)'),
+        ),
 
-          SizedBox(height: 10),
+        const SizedBox(height: 10),
 
-          ElevatedButton(
-            onPressed: () {},
-            child: Text("Ver en mapa"),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _card({required Widget child}) {
-    return Container(
-      margin: EdgeInsets.all(12),
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: child,
+        ElevatedButton(
+          onPressed: () {},
+          child: const Text('Ver todos en el mapa'),
+        )
+      ],
     );
   }
 }
