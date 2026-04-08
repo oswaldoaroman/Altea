@@ -1,32 +1,40 @@
 import 'package:flutter/material.dart';
 
 class InformeItem extends StatelessWidget {
+  const InformeItem({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 6),
-      padding: EdgeInsets.all(10),
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withOpacity(0.2),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          Icon(Icons.picture_as_pdf, color: Colors.blue),
+          const Icon(Icons.picture_as_pdf, color: Color(0xFF004A99)),
 
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
 
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Informe médico"),
-                Text("(03 abr 2026)", style: TextStyle(fontSize: 12)),
+                Text('Informe médico'),
+                Text('(03 abr 2026)', style: TextStyle(fontSize: 12)),
               ],
             ),
           ),
 
-          Icon(Icons.download, color: Colors.green)
+          ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+            ),
+            child: const Icon(Icons.download),
+          )
         ],
       ),
     );
