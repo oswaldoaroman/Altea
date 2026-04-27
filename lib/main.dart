@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import 'Screens/home_screen.dart';
+import 'Screens/home_screen_servicios.dart';
+import 'Screens/home_screen_evaluacion.dart';
+import 'Screens/home_screen_carga.dart';
+import 'Screens/home_screen_resultado.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,23 +15,30 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Salud App',
+      title: 'Altea Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFE1F0F7),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const MyHomePage(title: 'Salud App'),
+      home: const MainScreen(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+class MainScreen extends StatelessWidget {
+  const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const HomeScreen();
+    return PageView(
+      children: const [
+        HomeScreen(),
+        EvaluacionScreen(),
+        PantallaCargaScreen(),
+        ResultadoScreen(),
+        HomeServicesScreen(),
+      ],
+    );
   }
 }

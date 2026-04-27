@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'widgets/informes_section.dart';
-import 'widgets/voice_section.dart';
-import 'widgets/medico_section.dart';
+import '../homeServ/informes_section.dart';
+import '../homeServ/voice_section.dart';
+import '../homeServ/medico_section.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeServicesScreen extends StatelessWidget {
+  const HomeServicesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
