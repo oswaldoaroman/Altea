@@ -7,6 +7,7 @@ import 'Screens/home_screen_resultado.dart';
 
 void main() {
   runApp(const MyApp());
+  print("Hola Mundo");
 }
 
 class MyApp extends StatelessWidget {

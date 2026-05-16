@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../service/EvaluacionService.dart';
 import '../../topics/colors.dart';
 import '../homeFormulario/header_card.dart';
 import '../homeFormulario/form_input_field.dart';
@@ -20,6 +21,7 @@ class _EvaluacionScreenState extends State<EvaluacionScreen> {
   final _estatura = TextEditingController();
   final _colesterol = TextEditingController();
 
+  String? _glucosa;
   String? _sexo;
   String? _presion;
   String? _actividad;
@@ -38,9 +40,16 @@ class _EvaluacionScreenState extends State<EvaluacionScreen> {
             children: [
               const HeaderCard(),
               const SizedBox(height: 16),
-              const Text('Ingrese los siguientes datos:', style: TextStyle(fontSize: 15)),
+              const Text(
+                'Ingrese los siguientes datos:',
+                style: TextStyle(fontSize: 15),
+              ),
               const SizedBox(height: 12),
-              FormInputField(controller: _edad, hint: 'Edad', keyboardType: TextInputType.number),
+              FormInputField(
+                controller: _edad,
+                hint: 'Edad',
+                keyboardType: TextInputType.number,
+              ),
               const SizedBox(height: 10),
               FormDropdownField(
                 hint: 'Sexo',
@@ -49,9 +58,17 @@ class _EvaluacionScreenState extends State<EvaluacionScreen> {
                 onChanged: (v) => setState(() => _sexo = v),
               ),
               const SizedBox(height: 10),
-              FormInputField(controller: _peso, hint: 'Peso (kg)', keyboardType: TextInputType.number),
+              FormInputField(
+                controller: _peso,
+                hint: 'Peso (kg)',
+                keyboardType: TextInputType.number,
+              ),
               const SizedBox(height: 10),
-              FormInputField(controller: _estatura, hint: 'Estatura (cm)', keyboardType: TextInputType.number),
+              FormInputField(
+                controller: _estatura,
+                hint: 'Estatura (cm)',
+                keyboardType: TextInputType.number,
+              ),
               const SizedBox(height: 20),
               SustanciasSection(
                 cigarro: _cigarro,
@@ -65,7 +82,10 @@ class _EvaluacionScreenState extends State<EvaluacionScreen> {
                 onChanged: (v) => setState(() => _actividad = v),
               ),
               const SizedBox(height: 16),
-              Opacity(opacity: 0.7, child: const Text('Opcionales', style: TextStyle(fontSize: 15))),
+              Opacity(
+                opacity: 0.7,
+                child: const Text('Opcionales', style: TextStyle(fontSize: 15)),
+              ),
               const SizedBox(height: 10),
               FormDropdownField(
                 hint: 'Presión arterial',
@@ -74,9 +94,82 @@ class _EvaluacionScreenState extends State<EvaluacionScreen> {
                 onChanged: (v) => setState(() => _presion = v),
               ),
               const SizedBox(height: 10),
-              FormInputField(controller: _colesterol, hint: 'Colesterol total', keyboardType: TextInputType.number),
+              FormInputField(
+                controller: _colesterol,
+                hint: 'Colesterol total',
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 10),
+              FormDropdownField(
+                hint: 'Nivel de glucosa',
+                value: _glucosa,
+                items: const ['Normal', 'Elevada', 'Muy elevada'],
+                onChanged: (v) => setState(() => _glucosa = v),
+              ),
               const SizedBox(height: 24),
-              SubmitButton(onPressed: () {}),
+              // Aquí iría la lógica de validación y procesamiento de datos
+              SubmitButton(
+                onPressed: () {
+                  if (_edad.text.isEmpty ||
+                      _peso.text.isEmpty ||
+                      _estatura.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Por favor, complete los campos obligatorios.',
+                        ),
+                      ),
+                    );
+                    return;
+                  }
+
+                  double edad = double.tryParse(_edad.text) ?? 0;
+                  double peso = double.tryParse(_peso.text) ?? 0;
+                  double estatura = double.tryParse(_estatura.text) ?? 0;
+                  double colesterol = double.tryParse(_colesterol.text) ?? 0;
+
+                  //quitar estas varialbes y buscar otra solucion
+                  double alcohol = _alcohol == true ? 1 : 0;
+                  double cigarro = _cigarro == true ? 1 : 0;
+                  double actividad = _actividad == 'Activo' ? 1 : 0;
+
+                  final presion = EvaluacionService.convertirPresion(
+                    _presion,
+                    edad.toInt(),
+                    peso,
+                  );
+
+                  double apHi = presion['apHi']!;
+                  double apLo = presion['apLo']!;
+                  double gluc = EvaluacionService.convertirGlucosa(_glucosa);
+
+                  double riesgo = EvaluacionService.evaluar(
+                    apHi: apHi,
+                    apLo: apLo,
+                    age: edad.toDouble(),
+                    cholesterol: colesterol,
+                    gluc: gluc,
+                    weight: peso.toDouble(),
+                    height: estatura.toDouble(),
+                    smoke: cigarro,
+                    alco: alcohol,
+                    active: actividad,
+                  );
+
+                  print("Riesgo cardiovascular: $riesgo %");
+
+                  //Nombre de las variables:
+                  // print("Edad: $edad");
+                  // print("Sexo: $_sexo");
+                  // print("Peso: $peso");
+                  // print("Estatura: $estatura");
+                  // print("Colesterol: $colesterol");
+                  //print("Fuma: $_cigarro");
+                  //print("Alcohol: $_alcohol");
+                  // print("Presión arterial: $_presion");
+                  //print("Actividad física: $_actividad");
+                },
+              ),
               const SizedBox(height: 24),
             ],
           ),
