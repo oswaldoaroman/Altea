@@ -1,3 +1,4 @@
+import 'package:altea/Screens/home_screen_resultado.dart';
 import 'package:flutter/material.dart';
 import '../service/EvaluacionService.dart';
 import '../../topics/colors.dart';
@@ -7,6 +8,8 @@ import '../homeFormulario/form_dropdown_field.dart';
 import '../homeFormulario/sustancias_section.dart';
 import '../homeFormulario/actividad_section.dart';
 import '../homeFormulario/submit_button.dart';
+import '../service/recomendacion_service.dart';
+import 'package:altea/Screens/home_screen_resultado.dart';
 
 class EvaluacionScreen extends StatefulWidget {
   const EvaluacionScreen({super.key});
@@ -19,8 +22,8 @@ class _EvaluacionScreenState extends State<EvaluacionScreen> {
   final _edad = TextEditingController();
   final _peso = TextEditingController();
   final _estatura = TextEditingController();
-  final _colesterol = TextEditingController();
 
+  String? _colesterol;
   String? _glucosa;
   String? _sexo;
   String? _presion;
@@ -94,10 +97,11 @@ class _EvaluacionScreenState extends State<EvaluacionScreen> {
                 onChanged: (v) => setState(() => _presion = v),
               ),
               const SizedBox(height: 10),
-              FormInputField(
-                controller: _colesterol,
-                hint: 'Colesterol total',
-                keyboardType: TextInputType.number,
+              FormDropdownField(
+                hint: 'Colesterol',
+                value: _colesterol,
+                items: const ['Normal', 'Elevado', 'Alto'],
+                onChanged: (v) => setState(() => _colesterol = v),
               ),
               const SizedBox(height: 10),
               FormDropdownField(
@@ -110,6 +114,10 @@ class _EvaluacionScreenState extends State<EvaluacionScreen> {
               // Aquí iría la lógica de validación y procesamiento de datos
               SubmitButton(
                 onPressed: () {
+                  // =========================
+                  // VALIDACIÓN
+                  // =========================
+
                   if (_edad.text.isEmpty ||
                       _peso.text.isEmpty ||
                       _estatura.text.isEmpty) {
@@ -120,18 +128,37 @@ class _EvaluacionScreenState extends State<EvaluacionScreen> {
                         ),
                       ),
                     );
+
                     return;
                   }
 
-                  double edad = double.tryParse(_edad.text) ?? 0;
-                  double peso = double.tryParse(_peso.text) ?? 0;
-                  double estatura = double.tryParse(_estatura.text) ?? 0;
-                  double colesterol = double.tryParse(_colesterol.text) ?? 0;
+                  // =========================
+                  // CONVERSIÓN DE DATOS
+                  // =========================
 
-                  //quitar estas varialbes y buscar otra solucion
-                  double alcohol = _alcohol == true ? 1 : 0;
-                  double cigarro = _cigarro == true ? 1 : 0;
+                  double edad = double.tryParse(_edad.text) ?? 0;
+
+                  double peso = double.tryParse(_peso.text) ?? 0;
+
+                  double estatura = double.tryParse(_estatura.text) ?? 0;
+
+                  double colesterol = EvaluacionService.convertirColesterol(
+                    _colesterol,
+                  );
+
+                  // =========================
+                  // BOOLEANOS → NUMÉRICOS
+                  // =========================
+
+                  double alcohol = _alcohol ? 1 : 0;
+
+                  double cigarro = _cigarro ? 1 : 0;
+
                   double actividad = _actividad == 'Activo' ? 1 : 0;
+
+                  // =========================
+                  // TRATAMIENTO DE DATOS
+                  // =========================
 
                   final presion = EvaluacionService.convertirPresion(
                     _presion,
@@ -140,17 +167,23 @@ class _EvaluacionScreenState extends State<EvaluacionScreen> {
                   );
 
                   double apHi = presion['apHi']!;
+
                   double apLo = presion['apLo']!;
+
                   double gluc = EvaluacionService.convertirGlucosa(_glucosa);
+
+                  // =========================
+                  // CÁLCULO DE RIESGO
+                  // =========================
 
                   double riesgo = EvaluacionService.evaluar(
                     apHi: apHi,
                     apLo: apLo,
-                    age: edad.toDouble(),
+                    age: edad,
                     cholesterol: colesterol,
                     gluc: gluc,
-                    weight: peso.toDouble(),
-                    height: estatura.toDouble(),
+                    weight: peso,
+                    height: estatura,
                     smoke: cigarro,
                     alco: alcohol,
                     active: actividad,
@@ -158,16 +191,44 @@ class _EvaluacionScreenState extends State<EvaluacionScreen> {
 
                   print("Riesgo cardiovascular: $riesgo %");
 
-                  //Nombre de las variables:
-                  // print("Edad: $edad");
-                  // print("Sexo: $_sexo");
-                  // print("Peso: $peso");
-                  // print("Estatura: $estatura");
-                  // print("Colesterol: $colesterol");
-                  //print("Fuma: $_cigarro");
-                  //print("Alcohol: $_alcohol");
-                  // print("Presión arterial: $_presion");
-                  //print("Actividad física: $_actividad");
+                  // =========================
+                  // FACTORES DETECTADOS
+                  // =========================
+
+                  final factores = RecomendacionService.generarFactores(
+                    fuma: _cigarro,
+                    alcohol: _alcohol,
+                    actividad: _actividad ?? '',
+                    colesterol: colesterol,
+                  );
+
+                  // =========================
+                  // RECOMENDACIONES
+                  // =========================
+
+                  final recomendaciones =
+                      RecomendacionService.generarRecomendaciones(
+                        fuma: _cigarro,
+                        alcohol: _alcohol,
+                        actividad: _actividad ?? '',
+                        colesterol: colesterol,
+                      );
+
+                  // =========================
+                  // NAVEGACIÓN
+                  // =========================
+
+                  Navigator.push(
+                    context,
+
+                    MaterialPageRoute(
+                      builder: (_) => ResultadoScreen(
+                        riesgo: riesgo,
+                        factores: factores,
+                        recomendaciones: recomendaciones,
+                      ),
+                    ),
+                  );
                 },
               ),
               const SizedBox(height: 24),

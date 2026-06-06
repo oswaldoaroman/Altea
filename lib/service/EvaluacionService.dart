@@ -1,6 +1,22 @@
 class EvaluacionService {
   EvaluacionService._();
 
+  static double convertirColesterol(String? colesterol) {
+    switch (colesterol) {
+      case 'Normal':
+        return 1;
+
+      case 'Elevado':
+        return 2;
+
+      case 'Alto':
+        return 3;
+
+      default:
+        return 1;
+    }
+  }
+
   static Map<String, double> convertirPresion(
     String? presion,
     int edad,

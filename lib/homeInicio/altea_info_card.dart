@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../topics/colors.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../service/url_service.dart';
 
 class AlteaInfoCard extends StatelessWidget {
@@ -74,9 +73,10 @@ class AlteaInfoCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
+                    //Funcionalidad del boton
                     onPressed: () {
                       UrlService.abrirUrl('altea.cis-itver.net');
-                      print("Abriendo URL: altea.cis-itver.net");
+                      //print("Abriendo URL: altea.cis-itver.net");
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.dark,
