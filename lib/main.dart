@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'Screens/home_screen.dart';
-import 'Screens/home_screen_servicios.dart';
-import 'Screens/home_screen_evaluacion.dart';
-import 'Screens/home_screen_carga.dart';
-import 'Screens/home_screen_resultado.dart';
+import 'features/home/screens/home_screen.dart';
 
 void main() {
   runApp(const MyApp());
