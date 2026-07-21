@@ -3,37 +3,23 @@ import 'package:flutter/material.dart';
 import 'riesgo_gauge.dart';
 
 class ResultadoCard extends StatelessWidget {
+  final double porcentajeNormalizado;
   final double riesgo;
+  final String label;
+  final Color labelColor;
+  final String descripcion;
 
-  const ResultadoCard({super.key, required this.riesgo});
+  const ResultadoCard({
+    super.key,
+    required this.porcentajeNormalizado,
+    required this.riesgo,
+    required this.label,
+    required this.labelColor,
+    required this.descripcion,
+  });
 
   @override
   Widget build(BuildContext context) {
-    String label;
-    Color labelColor;
-    String descripcion;
-
-    final double riesgoNormalizado = (riesgo / 100).clamp(0.0, 1.0);
-
-    final double truncado = (riesgoNormalizado * 100).truncateToDouble() / 100;
-
-    print('Riesgo normalizado: $riesgoNormalizado, truncado: $truncado');
-
-    if (riesgo >= 0.7) {
-      label = 'Riesgo Alto';
-      labelColor = const Color(0xFFC51717);
-      descripcion =
-          'Probabilidad estimada: Alta\nSe recomienda atención médica';
-    } else if (riesgo >= 0.4) {
-      label = 'Riesgo Medio';
-      labelColor = Colors.orange;
-      descripcion = 'Probabilidad estimada: Media\nSe recomienda monitoreo';
-    } else {
-      label = 'Riesgo Bajo';
-      labelColor = Colors.green;
-      descripcion = 'Probabilidad estimada: Baja\nMantenga hábitos saludables';
-    }
-
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
@@ -54,12 +40,29 @@ class ResultadoCard extends StatelessWidget {
           ),
           child: Column(
             children: [
-              RiesgoGauge(
-                percent: truncado,
-                label: label,
-                labelColor: labelColor,
+              RiesgoGauge(percent: porcentajeNormalizado),
+
+              const SizedBox(height: 12),
+
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: labelColor,
+                ),
               ),
+
+              Text(
+                '${riesgo.toStringAsFixed(1)}%',
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
               const SizedBox(height: 8),
+
               Opacity(
                 opacity: 0.7,
                 child: Text(

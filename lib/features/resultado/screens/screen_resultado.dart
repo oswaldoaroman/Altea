@@ -1,12 +1,13 @@
+import 'package:altea/features/resultado/models/resultado_model.dart';
 import 'package:flutter/material.dart';
-
 import '../../../core/theme/colors.dart';
-
 import '../widgets/resultado_card.dart';
 import '../widgets/info_cards.dart';
+import 'package:altea/features/resultado/service/resultado_service.dart';
 
 class ResultadoScreen extends StatelessWidget {
   final double riesgo;
+  ResultadoModel get resultado => ResultadoService.interpretarRiesgo(riesgo);
 
   final List<InfoItem> factores;
 
@@ -69,7 +70,13 @@ class ResultadoScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              ResultadoCard(riesgo: riesgo),
+              ResultadoCard(
+                riesgo: resultado.riesgo,
+                porcentajeNormalizado: resultado.porcentajeNormalizado,
+                label: resultado.label,
+                labelColor: resultado.color,
+                descripcion: resultado.descripcion,
+              ),
 
               const SizedBox(height: 12),
 
