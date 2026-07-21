@@ -1,4 +1,4 @@
-import 'package:altea/features/resultado/screens/home_screen_resultado.dart';
+import 'package:altea/features/resultado/screens/screen_resultado.dart';
 import 'package:flutter/material.dart';
 import '../service/evaluacion_service.dart';
 import '../../../core/theme/colors.dart';

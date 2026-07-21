@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/colors.dart';
-import '../data/consejo_data.dart';
+import '../../../../core/theme/colors.dart';
+import 'package:altea/features/home/data/consejo_data.dart';
 
 class DailyTipCard extends StatelessWidget {
   const DailyTipCard({super.key});

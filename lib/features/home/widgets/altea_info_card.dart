@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../../core/theme/colors.dart';
-import '../../../core/service/url_service.dart';
+import '../../../../core/theme/colors.dart';
+import '../../../../core/service/url_service.dart';
 
 class AlteaInfoCard extends StatelessWidget {
   const AlteaInfoCard({super.key});
@@ -72,11 +72,20 @@ class AlteaInfoCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  //Boton
                   ElevatedButton(
                     //Funcionalidad del boton
-                    onPressed: () {
-                      UrlService.abrirUrl('altea.cis-itver.net');
-                      //print("Abriendo URL: altea.cis-itver.net");
+                    onPressed: () async {
+                      bool abierto = await UrlService.abrirUrl(
+                        'https://altea.cis-itver.net/',
+                      );
+                      if (!abierto) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('No se pudo abrir el enlace'),
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.dark,

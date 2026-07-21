@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/colors.dart';
+import '../../../../core/theme/colors.dart';
 
 class PremiumToggle extends StatefulWidget {
   const PremiumToggle({super.key});

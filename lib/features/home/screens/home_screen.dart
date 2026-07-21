@@ -7,7 +7,7 @@ import '../widgets/daily_tip_card.dart';
 import '../widgets/patient_card.dart';
 import '../widgets/premium_toggle.dart';
 import '../../formulario/screens/screen_evaluacion.dart';
-import '../../servicios/screens/home_screen_servicios.dart';
+import '../../servicios/screens/screen_servicios.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

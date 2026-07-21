@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/colors.dart';
+import '../../../../core/theme/colors.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});

@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../../core/theme/colors.dart';
+import '../../../../core/theme/colors.dart';
 
 class PatientCard extends StatelessWidget {
   const PatientCard({super.key});
