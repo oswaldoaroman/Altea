@@ -164,8 +164,8 @@ Ante cualquier duda o síntoma, consulte siempre a un profesional de la salud.
 
 Este proyecto fue desarrollado con fines académicos y de investigación.
 
-<<<<<<< HEAD
+
 No se autoriza su utilización como herramienta de diagnóstico médico.
-=======
+
 No se autoriza su utilización como herramienta de diagnóstico médico.
->>>>>>> 6f3d449 (Agrege funcionalidad al boton leer)
+
