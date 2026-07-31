@@ -22,20 +22,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// class MainScreen extends StatelessWidget {
-//   const MainScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return PageView(
-//       children: const [
-//         HomeScreen(),
-//         EvaluacionScreen(),
-//         PantallaCargaScreen(),
-//         ResultadoScreen(riesgo: 0),
-//         HomeServicesScreen(),
-//       ],
-//     );
-//   }
-// }

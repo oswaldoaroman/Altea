@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../resultado/widgets/info_cards.dart';
+import '../../result/widgets/info_cards.dart';
 
 class RecomendacionService {
   static List<InfoItem> generarFactores({

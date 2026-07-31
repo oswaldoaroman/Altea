@@ -38,7 +38,7 @@ class _PremiumToggleState extends State<PremiumToggle> {
           Switch(
             value: _isPremium,
             onChanged: (v) => setState(() => _isPremium = v),
-            activeColor: AppColors.dark,
+            activeThumbColor: AppColors.dark,
             inactiveThumbColor: AppColors.dark,
             inactiveTrackColor: Colors.grey.shade300,
           ),
