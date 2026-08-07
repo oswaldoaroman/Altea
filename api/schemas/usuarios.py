@@ -1,7 +1,8 @@
 from datetime import date
 from datetime import datetime
-from pydantic import BaseModel, EmailStr
-from sqlalchemy import Enum
+from pydantic import BaseModel, ConfigDict, EmailStr
+from enum import Enum
+
 
 class GeneroEnum(str, Enum):
     MASCULINO="Masculino"
@@ -17,13 +18,11 @@ class UsuarioCreate(BaseModel):
 
 
 class UsuarioResponse(BaseModel):
-
     id_usuario: int
     nombre: str
     correo: EmailStr
     fecha_nacimiento: date
     genero: str
-    fecha_resultado:datetime
+    fecha_registro: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
