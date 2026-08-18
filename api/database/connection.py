@@ -1,11 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+import yaml
 
+with open("config.yaml","r") as archivo:
+    config = yaml.safe_load(archivo)
 
-DATABASE_URL = (
-    "postgresql+psycopg2://altea_user:alteakk@localhost/altea"
-)
-
+DATABASE_URL = config["database"]["url"]
 
 engine = create_engine(
     DATABASE_URL
