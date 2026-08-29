@@ -1,0 +1,6 @@
+ollama:
+  api_url: "http://localhost:11434/api/generate"
+  model_name: "gemma4:e2b"
+
+database:
+  url: "postgresql+psycopg2://altea_user:alteakk@localhost/altea"

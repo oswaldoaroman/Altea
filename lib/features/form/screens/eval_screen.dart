@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:front_1/screens/result_screen.dart';
-import '../theme/colors.dart';
-import '../widgets/app_card.dart';
-import '../widgets/responsive_body.dart';
+import 'package:altea/features/result/screens/result_screen.dart';
+import 'package:altea/core/theme/colors.dart';
+import 'package:altea/core/widgets/app_card.dart';
+import 'package:altea/core/widgets/responsive_body.dart';
 
 class EvalScreen extends StatefulWidget {
   const EvalScreen({super.key});
@@ -20,8 +20,8 @@ class _EvalScreenState extends State<EvalScreen> {
   bool _alcohol = false;
 
   static const _niveles = ['Activo', 'Ligera', 'Sedentario'];
-  static const _colesterol = ['Bajo', 'Normal', 'Alto'];  
-  static const _glucosa = ['Bajo', 'Normal', 'Alto'];  
+  static const _colesterol = ['Bajo', 'Normal', 'Alto'];
+  static const _glucosa = ['Bajo', 'Normal', 'Alto'];
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,10 @@ class _EvalScreenState extends State<EvalScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const TopTitle(title: 'Evaluación corporal', subtitle: 'Paso 1 de 2'),
+            const TopTitle(
+              title: 'Evaluación corporal',
+              subtitle: 'Paso 1 de 2',
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18),
               child: Column(
@@ -39,7 +42,10 @@ class _EvalScreenState extends State<EvalScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Peso: ${_peso.toInt()} kg', style: const TextStyle(fontWeight: FontWeight.w700)),
+                        Text(
+                          'Peso: ${_peso.toInt()} kg',
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
                         Slider.adaptive(
                           value: _peso,
                           min: 40,
@@ -47,7 +53,10 @@ class _EvalScreenState extends State<EvalScreen> {
                           activeColor: AppColors.blue,
                           onChanged: (v) => setState(() => _peso = v),
                         ),
-                        Text('Estatura: ${_estatura.toInt()} cm', style: const TextStyle(fontWeight: FontWeight.w700)),
+                        Text(
+                          'Estatura: ${_estatura.toInt()} cm',
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
                         Slider.adaptive(
                           value: _estatura,
                           min: 130,
@@ -63,78 +72,108 @@ class _EvalScreenState extends State<EvalScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Nivel de actividad física', style: TextStyle(fontWeight: FontWeight.w700)),
+                        const Text(
+                          'Nivel de actividad física',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
                         const SizedBox(height: 10),
                         Row(
                           children: List.generate(_niveles.length, (i) {
                             final active = _actividad_fisica == i;
                             return Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 3),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 3,
+                                ),
                                 child: ChoiceChip(
                                   label: Text(_niveles[i]),
                                   selected: active,
-                                  onSelected: (_) => setState(() => _actividad_fisica = i),
+                                  onSelected: (_) =>
+                                      setState(() => _actividad_fisica = i),
                                   selectedColor: AppColors.blue,
                                   backgroundColor: AppColors.sky,
                                   labelStyle: TextStyle(
-                                    color: active ? Colors.white : AppColors.ink,
+                                    color: active
+                                        ? Colors.white
+                                        : AppColors.ink,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 12,
                                   ),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
                                 ),
                               ),
                             );
                           }),
                         ),
 
-                        const Text('¿Como esta tu colesterol?', style: TextStyle(fontWeight: FontWeight.w700)),
+                        const Text(
+                          '¿Como esta tu colesterol?',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
                         const SizedBox(height: 20),
                         Row(
                           children: List.generate(_colesterol.length, (i) {
                             final active = _actividad_colesterol == i;
                             return Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 3),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 3,
+                                ),
                                 child: ChoiceChip(
                                   label: Text(_colesterol[i]),
                                   selected: active,
-                                  onSelected: (_) => setState(() => _actividad_colesterol = i),
+                                  onSelected: (_) =>
+                                      setState(() => _actividad_colesterol = i),
                                   selectedColor: AppColors.blue,
                                   backgroundColor: AppColors.sky,
                                   labelStyle: TextStyle(
-                                    color: active ? Colors.white : AppColors.ink,
+                                    color: active
+                                        ? Colors.white
+                                        : AppColors.ink,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 12,
                                   ),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
                                 ),
                               ),
                             );
                           }),
                         ),
 
-                        const Text('¿Como esta tu glucosa?', style: TextStyle(fontWeight: FontWeight.w700)),
+                        const Text(
+                          '¿Como esta tu glucosa?',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
                         const SizedBox(height: 20),
                         Row(
                           children: List.generate(_glucosa.length, (i) {
                             final active = _actividad_glucosa == i;
                             return Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 3),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 3,
+                                ),
                                 child: ChoiceChip(
                                   label: Text(_glucosa[i]),
                                   selected: active,
-                                  onSelected: (_) => setState(() => _actividad_glucosa = i),
+                                  onSelected: (_) =>
+                                      setState(() => _actividad_glucosa = i),
                                   selectedColor: AppColors.blue,
                                   backgroundColor: AppColors.sky,
                                   labelStyle: TextStyle(
-                                    color: active ? Colors.white : AppColors.ink,
+                                    color: active
+                                        ? Colors.white
+                                        : AppColors.ink,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 12,
                                   ),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
                                 ),
                               ),
                             );
@@ -143,38 +182,46 @@ class _EvalScreenState extends State<EvalScreen> {
                         const SizedBox(height: 6),
                         SwitchListTile.adaptive(
                           contentPadding: EdgeInsets.zero,
-                          title: const Text('Consumo de cigarro', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700)),
+                          title: const Text(
+                            'Consumo de cigarro',
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                           value: _fuma,
                           activeColor: AppColors.teal,
                           onChanged: (v) => setState(() => _fuma = v),
                         ),
                         SwitchListTile.adaptive(
                           contentPadding: EdgeInsets.zero,
-                          title: const Text('Consumo de alcohol', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700)),
+                          title: const Text(
+                            'Consumo de alcohol',
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                           value: _alcohol,
                           activeColor: AppColors.teal,
                           onChanged: (v) => setState(() => _alcohol = v),
                         ),
-
-                       
-
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
                   PillButton(
-                  label: 'Calcular mi riesgo',
-                   onPressed: () {
-                         Navigator.push(
-                          context,
-                           MaterialPageRoute(
-                                builder: (context) => const ResultScreen(), 
+                    label: 'Calcular mi riesgo',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ResultScreen(),
                         ),
-                          );
-                         },
-                            ),
-                            const SizedBox(height: 20),
-                 
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
