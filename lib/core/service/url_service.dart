@@ -11,4 +11,16 @@ class UrlService {
       return false;
     }
   }
+
+  static Future<void> abrirGoogleMaps(String busqueda) async {
+    final Uri url = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(busqueda)}',
+    );
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      throw Exception('No se pudo abrir Google Maps');
+    }
+  }
 }

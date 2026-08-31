@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:altea/core/theme/colors.dart';
 import 'package:altea/core/widgets/bottom_nav.dart';
+
 import 'package:altea/features/home/screens/home_screen.dart';
 import 'package:altea/features/form/screens/eval_screen.dart';
 import 'package:altea/features/informes/screens/informes_screen.dart';
@@ -27,10 +29,13 @@ class AlteaApp extends StatelessWidget {
   }
 }
 
-/// Contenedor raíz: cambia entre nav inferior (celular) y NavigationRail
-/// (tablet / plegable abierto) según el ancho disponible.
+/// Contenedor raíz de la aplicación.
+/// Mantiene la navegación principal y permite cambiar
+/// entre NavigationRail y BottomNavigationBar dependiendo
+/// del ancho disponible.
 class RootShell extends StatefulWidget {
   const RootShell({super.key});
+
   @override
   State<RootShell> createState() => _RootShellState();
 }
@@ -38,27 +43,23 @@ class RootShell extends StatefulWidget {
 class _RootShellState extends State<RootShell> {
   int _index = 0;
 
-  static const _screens = [
-    HomeScreen(),
-    EvalScreen(),
-    InformesScreen(),
-    ChatScreen(),
-    ProfileScreen(),
-  ];
-
-  void _go(int i) => setState(() => _index = i);
+  void _go(int i) {
+    setState(() {
+      _index = i;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final esAncho =
-            constraints.maxWidth >= 700; // tablet o plegable abierto
+        final esAncho = constraints.maxWidth >= 700;
 
         return Scaffold(
           body: SafeArea(
             child: Row(
               children: [
+                // PANEL LATERAL
                 if (esAncho)
                   NavigationRail(
                     selectedIndex: _index,
@@ -74,10 +75,25 @@ class _RootShellState extends State<RootShell> {
                         )
                         .toList(),
                   ),
-                Expanded(child: _screens[_index]),
+
+                // CONTENIDO
+                Expanded(
+                  child: IndexedStack(
+                    index: _index,
+                    children: [
+                      HomeScreen(onNavigate: _go),
+                      const EvalScreen(),
+                      const InformesScreen(),
+                      const ChatScreen(),
+                      const ProfileScreen(),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
+
+          // NAVEGACIÓN INFERIOR EN CELULAR
           bottomNavigationBar: esAncho
               ? null
               : AlteaBottomNav(index: _index, onTap: _go),

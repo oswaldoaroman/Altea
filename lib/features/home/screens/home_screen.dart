@@ -1,11 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:altea/features/result/screens/result_screen.dart';
+
 import 'package:altea/core/theme/colors.dart';
 import 'package:altea/core/widgets/app_card.dart';
 import 'package:altea/core/widgets/responsive_body.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+import 'package:altea/features/home/models/consejo.dart';
+import 'package:altea/features/home/service/consejo_service.dart';
+import 'package:altea/features/home/service/fecha_service.dart';
+import 'package:altea/features/form/screens/eval_screen.dart';
+import 'package:altea/core/service/url_service.dart';
+import 'package:altea/features/chat_bot/screens/chat_screen.dart';
+
+class HomeScreen extends StatefulWidget {
+  final void Function(int) onNavigate;
+
+  const HomeScreen({super.key, required this.onNavigate});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final FechaService _fechaService = FechaService();
+  final ConsejoService _consejoService = ConsejoService();
+
+  late Consejo consejo;
+  late String fecha;
+
+  @override
+  void initState() {
+    super.initState();
+    consejo = _consejoService.obtenerConsejo();
+    fecha = _fechaService.obtenerFechaActual();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,10 +41,8 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const TopTitle(
-              title: 'Hola, Isela',
-              subtitle: 'Martes 21 de julio',
-            ),
+            TopTitle(title: 'Hola, Isela', subtitle: fecha),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18),
               child: Column(
@@ -73,32 +98,32 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 14),
 
                   // Panel de consejo diario
                   AppCard(
                     child: Row(
-                      children: const [
-                        Icon(
-                          Icons.play_circle_fill_rounded,
-                          color: AppColors.blue,
-                          size: 34,
-                        ),
-                        SizedBox(width: 12),
+                      children: [
+                        Icon(consejo.icono, color: AppColors.blue, size: 34),
+
+                        const SizedBox(width: 12),
+
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Consejo diario',
-                                style: TextStyle(
+                                consejo.titulo,
+                                style: const TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontSize: 12.5,
                                 ),
                               ),
+
                               Text(
-                                'Hidrátate antes de tu caminata de hoy',
-                                style: TextStyle(
+                                consejo.descripcion,
+                                style: const TextStyle(
                                   color: AppColors.slate,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -111,7 +136,6 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // ola oswaldo come kkkkkkkkkkkkkkk
                   const SizedBox(height: 14),
 
                   PillButton(
@@ -119,17 +143,12 @@ class HomeScreen extends StatelessWidget {
                     icon: Icons.assignment_rounded,
                     color: AppColors.teal,
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ResultScreen(),
-                        ),
-                      );
+                      widget.onNavigate(1);
                     },
                   ),
+
                   const SizedBox(height: 16),
 
-                  // apartados acces rápidos
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -141,7 +160,9 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 8),
+
                   GridView.count(
                     crossAxisCount: 2,
                     shrinkWrap: true,
@@ -149,25 +170,37 @@ class HomeScreen extends StatelessWidget {
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
                     childAspectRatio: 1.6,
-                    children: const [
+                    children: [
                       _QuickAction(
                         icon: Icons.medical_services_rounded,
                         label: 'Contactar doctor',
+                        onTap: () {
+                          UrlService.abrirGoogleMaps('doctores cerca de mí');
+                        },
                       ),
                       _QuickAction(
                         icon: Icons.science_rounded,
                         label: 'Laboratorios',
+                        onTap: () {
+                          UrlService.abrirGoogleMaps(
+                            'laboratorios cerca de mí',
+                          );
+                        },
                       ),
-                      _QuickAction(
+                      const _QuickAction(
                         icon: Icons.menu_book_rounded,
                         label: 'Recomendaciones',
                       ),
                       _QuickAction(
                         icon: Icons.chat_bubble_rounded,
                         label: 'Chat Altea',
+                        onTap: () {
+                          widget.onNavigate(3);
+                        },
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 20),
                 ],
               ),
@@ -182,7 +215,9 @@ class HomeScreen extends StatelessWidget {
 class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
-  const _QuickAction({required this.icon, required this.label});
+  final VoidCallback? onTap;
+
+  const _QuickAction({required this.icon, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +227,7 @@ class _QuickAction extends StatelessWidget {
       elevation: 1.5,
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: () {},
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
