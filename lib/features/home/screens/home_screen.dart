@@ -7,9 +7,8 @@ import 'package:altea/core/widgets/responsive_body.dart';
 import 'package:altea/features/home/models/consejo.dart';
 import 'package:altea/features/home/service/consejo_service.dart';
 import 'package:altea/features/home/service/fecha_service.dart';
-import 'package:altea/features/form/screens/eval_screen.dart';
 import 'package:altea/core/service/url_service.dart';
-import 'package:altea/features/chat_bot/screens/chat_screen.dart';
+import 'package:altea/features/Instructions_use/screens/use_instructions.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function(int) onNavigate;
@@ -200,7 +199,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-
+                  const SizedBox(height: 20),
+                  PillButton(
+                    label: '¿Como usar altea?',
+                    color: AppColors.navy,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const UsageInstructions(),
+                        ),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 20),
                 ],
               ),
