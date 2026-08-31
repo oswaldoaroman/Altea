@@ -8,7 +8,7 @@ import 'package:altea/features/home/models/consejo.dart';
 import 'package:altea/features/home/service/consejo_service.dart';
 import 'package:altea/features/home/service/fecha_service.dart';
 import 'package:altea/core/service/url_service.dart';
-import 'package:altea/features/Instructions_use/screens/use_instructions.dart';
+import 'package:altea/features/home/screens/use_instructions.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function(int) onNavigate;

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:altea/core/widgets/app_card.dart';
 import 'package:altea/core/widgets/responsive_body.dart';
-import 'package:altea/features/result/screens/result_screen.dart';
-import 'package:altea/features/form/widgets/measurements_card.dart';
-import 'package:altea/features/form/widgets/lifestyle_card.dart';
+import 'package:altea/features/evaluation/screens/result_screen.dart';
+import 'package:altea/features/evaluation/widgets/measurements_card.dart';
+import 'package:altea/features/evaluation/widgets/lifestyle_card.dart';
 
 class EvalScreen extends StatefulWidget {
   const EvalScreen({super.key});

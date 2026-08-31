@@ -4,7 +4,7 @@ import 'package:altea/core/theme/colors.dart';
 import 'package:altea/core/widgets/bottom_nav.dart';
 
 import 'package:altea/features/home/screens/home_screen.dart';
-import 'package:altea/features/form/screens/eval_screen.dart';
+import 'package:altea/features/evaluation/screens/eval_screen.dart';
 import 'package:altea/features/information/screens/informes_screen.dart';
 import 'package:altea/features/chat_bot/screens/chat_screen.dart';
 import 'package:altea/features/profiles/screens/profile_screen.dart';

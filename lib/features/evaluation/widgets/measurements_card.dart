@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:altea/features/form/widgets/slider_with_input.dart';
+import 'package:altea/features/evaluation/widgets/slider_with_input.dart';
 import 'package:altea/core/widgets/app_card.dart';
 
 /// Tarjeta de peso y estatura

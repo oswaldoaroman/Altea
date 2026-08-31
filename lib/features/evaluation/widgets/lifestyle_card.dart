@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:altea/features/form/widgets/segmented_optiones.dart';
+import 'package:altea/features/evaluation/widgets/segmented_optiones.dart';
 import 'package:altea/core/theme/colors.dart';
 import 'package:altea/core/widgets/app_card.dart';
 
