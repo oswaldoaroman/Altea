@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const primary = Color(0xFF007BFF);
-  static const dark = Color(0xFF004A99);
-  static const bg = Color(0xFFE1F0F7);
-  static const green = Color(0xFF5DC76D);
-  static const yellow = Color(0xFFFFCC00);
-  static const red = Color(0xFFE76C6C);
-  static const textDark = Color(0xFF1A2B3C);
+  static const navy = Color(0xFF0B3D5C);
+  static const blue = Color(0xFF1C6FA8);
+  static const blueLight = Color(0xFF4A9BD1);
+  static const sky = Color(0xFFEAF4FB);
+  static const skyDeep = Color(0xFFD7EAF8);
+  static const ink = Color(0xFF0F2A3D);
+  static const slate = Color(0xFF5C7A8C);
+  static const teal = Color(0xFF2E9E8F);
+  static const amber = Color(0xFFE8A33D);
+  static const coral = Color(0xFFE1573C);
+  static const line = Color(0xFFDCE9F2);
 }
