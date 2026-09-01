@@ -18,6 +18,7 @@ class EvalScreenState extends State<EvalScreen> {
   int _actividadFisica = 1;
   int _colesterol = 1;
   int _glucosa = 1;
+  int _presion = 1;
   bool _fuma = true;
   bool _alcohol = false;
 
@@ -49,6 +50,7 @@ class EvalScreenState extends State<EvalScreen> {
                         actividadFisica: _actividadFisica,
                         colesterol: _colesterol,
                         glucosa: _glucosa,
+                        presion: _presion,
                         fuma: _fuma,
                         alcohol: _alcohol,
                         onActividadChanged: (i) =>
@@ -56,6 +58,7 @@ class EvalScreenState extends State<EvalScreen> {
                         onColesterolChanged: (i) =>
                             setState(() => _colesterol = i),
                         onGlucosaChanged: (i) => setState(() => _glucosa = i),
+                        onPresionChanged: (i) => setState(() => _presion = i),
                         onFumaChanged: (v) => setState(() => _fuma = v),
                         onAlcoholChanged: (v) => setState(() => _alcohol = v),
                       ),
@@ -69,6 +72,16 @@ class EvalScreenState extends State<EvalScreen> {
                               builder: (context) => const ResultScreen(),
                             ),
                           );
+                          print("El valor de colesterol es: $_colesterol");
+                          print("El valor de glucosa es: $_glucosa");
+                          print("El valor de presion es: $_presion");
+                          print(
+                            "El valor de actividad física es: $_actividadFisica",
+                          );
+                          print("El valor de peso es: $_peso");
+                          print("El valor de estatura es: $_estatura");
+                          print("El valor de fuma es: $_fuma");
+                          print("El valor de alcohol es: $_alcohol");
                         },
                       ),
                       const SizedBox(height: 20),

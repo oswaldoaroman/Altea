@@ -5,18 +5,21 @@ import 'package:altea/core/widgets/app_card.dart';
 
 /// Tarjeta de estilo de vida
 class LifestyleCard extends StatelessWidget {
-  static const niveles = ['Activo', 'Ligera', 'Sedentario'];
+  static const actividadOpts = ['Activo', 'Ligera', 'Sedentario'];
   static const colesterolOpts = ['Bajo', 'Normal', 'Alto'];
   static const glucosaOpts = ['Bajo', 'Normal', 'Alto'];
+  static const presionOpts = ['Normal', 'Elevada', 'Alta'];
 
   final int actividadFisica;
   final int colesterol;
   final int glucosa;
+  final int presion;
   final bool fuma;
   final bool alcohol;
   final ValueChanged<int> onActividadChanged;
   final ValueChanged<int> onColesterolChanged;
   final ValueChanged<int> onGlucosaChanged;
+  final ValueChanged<int> onPresionChanged;
   final ValueChanged<bool> onFumaChanged;
   final ValueChanged<bool> onAlcoholChanged;
 
@@ -25,11 +28,13 @@ class LifestyleCard extends StatelessWidget {
     required this.actividadFisica,
     required this.colesterol,
     required this.glucosa,
+    required this.presion,
     required this.fuma,
     required this.alcohol,
     required this.onActividadChanged,
     required this.onColesterolChanged,
     required this.onGlucosaChanged,
+    required this.onPresionChanged,
     required this.onFumaChanged,
     required this.onAlcoholChanged,
   });
@@ -42,7 +47,7 @@ class LifestyleCard extends StatelessWidget {
         children: [
           SegmentedOptions(
             label: 'Nivel de actividad física',
-            opciones: niveles,
+            opciones: actividadOpts,
             seleccionado: actividadFisica,
             onChanged: onActividadChanged,
           ),
@@ -60,7 +65,14 @@ class LifestyleCard extends StatelessWidget {
             seleccionado: glucosa,
             onChanged: onGlucosaChanged,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 16),
+          SegmentedOptions(
+            label: '¿Cómo está tu presion?',
+            opciones: presionOpts,
+            seleccionado: presion,
+            onChanged: onPresionChanged,
+          ),
+          const SizedBox(height: 8),
           SwitchListTile.adaptive(
             contentPadding: EdgeInsets.zero,
             title: const Text(

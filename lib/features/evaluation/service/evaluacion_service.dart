@@ -50,6 +50,8 @@ class EvaluacionService {
 
   static double convertirGlucosa(String? glucosa) {
     switch (glucosa) {
+      case 'Normal':
+        return 1;
       case 'Elevada':
         return 2;
 
