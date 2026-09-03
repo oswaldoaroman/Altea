@@ -5,7 +5,8 @@ import 'package:altea/core/widgets/responsive_body.dart';
 import 'package:altea/core/widgets/risk_gauge.dart';
 
 class ResultScreen extends StatelessWidget {
-  const ResultScreen({super.key});
+  const ResultScreen({super.key, required this.resultado});
+  final double resultado;
 
   static const _factores = [
     (Icons.smoking_rooms_rounded, 'Consumo de cigarro', AppColors.coral),
@@ -39,8 +40,8 @@ class ResultScreen extends StatelessWidget {
                     children: [
                       AppCard(
                         child: Column(
-                          children: const [
-                            RiskGauge(percent: 70),
+                          children: [
+                            RiskGauge(percent: resultado),
                             SizedBox(height: 10),
                             Text(
                               'Probabilidad estimada · años de riesgo clínico',

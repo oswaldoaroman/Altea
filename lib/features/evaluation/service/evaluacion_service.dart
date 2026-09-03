@@ -18,26 +18,26 @@ class EvaluacionService {
   }
 
   static Map<String, double> convertirPresion(
-    String? presion,
+    int? presion,
     int edad,
     double peso,
   ) {
     int seed = edad + peso.toInt();
 
     switch (presion) {
-      case 'Normal':
+      case 1:
         return {
           'apHi': 110 + (seed % 20).toDouble(),
           'apLo': 70 + (seed % 15).toDouble(),
         };
 
-      case 'Elevada':
+      case 2:
         return {
           'apHi': 130 + (seed % 10).toDouble(),
           'apLo': 85 + (seed % 5).toDouble(),
         };
 
-      case 'Alta':
+      case 3:
         return {
           'apHi': 140 + (seed % 20).toDouble(),
           'apLo': 90 + (seed % 10).toDouble(),

@@ -4,6 +4,7 @@ import 'package:altea/core/widgets/responsive_body.dart';
 import 'package:altea/features/evaluation/screens/result_screen.dart';
 import 'package:altea/features/evaluation/widgets/measurements_card.dart';
 import 'package:altea/features/evaluation/widgets/lifestyle_card.dart';
+import 'package:altea/features/evaluation/service/evaluacion_service.dart';
 
 class EvalScreen extends StatefulWidget {
   const EvalScreen({super.key});
@@ -66,22 +67,36 @@ class EvalScreenState extends State<EvalScreen> {
                       PillButton(
                         label: 'Calcular mi riesgo',
                         onPressed: () {
+                          // Aquí puedes realizar la evaluación y obtener el resultado
+                          //Cambio de valores representativos a valores numéricos para la evaluación
+                          final presionValue =
+                              EvaluacionService.convertirPresion(
+                                _presion + 1,
+                                30,
+                                _peso,
+                              );
+                          //Evaluación de riesgo cardiovascular con los valores obtenidos
+                          final resultado = EvaluacionService.evaluar(
+                            age: 20,
+                            weight: _peso,
+                            height: _estatura,
+                            cholesterol: _colesterol.toDouble() + 1,
+                            gluc: _glucosa.toDouble() + 1,
+                            smoke: _fuma ? 1 : 0,
+                            alco: _alcohol ? 1 : 0,
+                            active: _actividadFisica.toDouble(),
+                            apHi: presionValue['apHi'],
+                            apLo: presionValue['apLo'],
+                          );
+
+                          // Navegar a la pantalla de resultados con el resultado
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ResultScreen(),
+                              builder: (context) =>
+                                  ResultScreen(resultado: resultado),
                             ),
                           );
-                          print("El valor de colesterol es: $_colesterol");
-                          print("El valor de glucosa es: $_glucosa");
-                          print("El valor de presion es: $_presion");
-                          print(
-                            "El valor de actividad física es: $_actividadFisica",
-                          );
-                          print("El valor de peso es: $_peso");
-                          print("El valor de estatura es: $_estatura");
-                          print("El valor de fuma es: $_fuma");
-                          print("El valor de alcohol es: $_alcohol");
                         },
                       ),
                       const SizedBox(height: 20),
