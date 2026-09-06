@@ -1,27 +1,33 @@
 import 'package:flutter/material.dart';
+
 import 'package:altea/core/theme/colors.dart';
 import 'package:altea/core/widgets/app_card.dart';
 import 'package:altea/core/widgets/responsive_body.dart';
 import 'package:altea/core/widgets/risk_gauge.dart';
+import 'package:altea/core/service/url_service.dart';
+import 'package:altea/features/evaluation/models/recommendation_model.dart';
 
 class ResultScreen extends StatelessWidget {
-  const ResultScreen({super.key, required this.resultado});
+  const ResultScreen({
+    super.key,
+    required this.resultado,
+    required this.recommendationResult,
+    required this.onBack,
+    required this.onNavigate,
+  });
+
   final double resultado;
 
-  static const _factores = [
-    (Icons.smoking_rooms_rounded, 'Consumo de cigarro', AppColors.coral),
-    (Icons.directions_walk_rounded, 'Sedentarismo', AppColors.amber),
-    (Icons.local_bar_rounded, 'Consumo de alcohol', AppColors.amber),
-  ];
+  final RecommendationResult recommendationResult;
 
-  static const _recs = [
-    'Consulta con un médico esta semana',
-    'Aumenta tu actividad física a 30 min/día',
-    'Reduce el consumo de alcohol y cigarro',
-  ];
+  final VoidCallback onBack;
+  final void Function(int) onNavigate;
 
   @override
   Widget build(BuildContext context) {
+    final factores = recommendationResult.factores;
+    final recomendaciones = recommendationResult.recomendaciones;
+
     return Scaffold(
       backgroundColor: AppColors.sky,
       body: SafeArea(
@@ -31,19 +37,25 @@ class ResultScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const TopTitle(
-                  title: 'Tu evaluación',
-                  subtitle: 'Resultado actual',
+                  title: 'Resultados de tu evaluación',
+                  subtitle: 'Paso 2 de 2',
                 ),
+
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18),
                   child: Column(
                     children: [
+                      // =====================================================
+                      // RESULTADO / RIESGO
+                      // =====================================================
                       AppCard(
                         child: Column(
                           children: [
                             RiskGauge(percent: resultado),
-                            SizedBox(height: 10),
-                            Text(
+
+                            const SizedBox(height: 10),
+
+                            const Text(
                               'Probabilidad estimada · años de riesgo clínico',
                               style: TextStyle(
                                 fontSize: 11.5,
@@ -53,40 +65,51 @@ class ResultScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+
                       const SizedBox(height: 16),
+
+                      // =====================================================
+                      // FACTORES DETECTADOS
+                      // =====================================================
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Factores detectados',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 12.5,
                             color: AppColors.navy,
                           ),
                         ),
                       ),
+
                       const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _factores.map((f) {
-                          final (icon, label, color) = f;
-                          return Chip(
-                            avatar: Icon(icon, size: 15, color: color),
-                            label: Text(
-                              label,
-                              style: TextStyle(
-                                color: color,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
-                              ),
+
+                      if (factores.isEmpty)
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'No se detectaron factores de riesgo.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.slate,
                             ),
-                            backgroundColor: color.withOpacity(0.08),
-                            side: BorderSide.none,
-                          );
-                        }).toList(),
-                      ),
+                          ),
+                        )
+                      else
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: factores.map((factor) {
+                            return _buildFactorChip(factor);
+                          }).toList(),
+                        ),
+
                       const SizedBox(height: 16),
+
+                      // =====================================================
+                      // RECOMENDACIONES
+                      // =====================================================
                       AppCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,52 +122,43 @@ class ResultScreen extends StatelessWidget {
                                 color: AppColors.navy,
                               ),
                             ),
+
                             const SizedBox(height: 10),
-                            ...List.generate(
-                              _recs.length,
-                              (i) => Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 6,
+
+                            if (recomendaciones.isEmpty)
+                              const Text(
+                                'Continúa manteniendo hábitos saludables.',
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.ink,
                                 ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 10,
-                                      backgroundColor: AppColors.sky,
-                                      child: Text(
-                                        '${i + 1}',
-                                        style: const TextStyle(
-                                          fontSize: 10.5,
-                                          fontWeight: FontWeight.w800,
-                                          color: AppColors.blue,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        _recs[i],
-                                        style: const TextStyle(
-                                          fontSize: 12.5,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.ink,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                              )
+                            else
+                              ...List.generate(recomendaciones.length, (index) {
+                                final recomendacion = recomendaciones[index];
+
+                                return _buildRecommendation(
+                                  index,
+                                  recomendacion,
+                                );
+                              }),
                           ],
                         ),
                       ),
+
                       const SizedBox(height: 16),
+
+                      // =====================================================
+                      // BOTONES
+                      // =====================================================
                       Row(
                         children: [
                           Expanded(
                             child: OutlinedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                onNavigate(3);
+                              },
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.blue,
                                 side: const BorderSide(
@@ -167,16 +181,47 @@ class ResultScreen extends StatelessWidget {
                               ),
                             ),
                           ),
+
                           const SizedBox(width: 10),
+
                           Expanded(
                             child: PillButton(
                               label: 'Contactar doctor',
                               color: AppColors.navy,
-                              onPressed: () {},
+                              onPressed: () {
+                                UrlService.abrirGoogleMaps(
+                                  'doctores cerca de mí',
+                                );
+                              },
                             ),
                           ),
                         ],
                       ),
+
+                      const SizedBox(height: 12),
+
+                      // =====================================================
+                      // VOLVER
+                      // =====================================================
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton.icon(
+                          onPressed: onBack,
+                          icon: const Icon(Icons.arrow_back_rounded, size: 18),
+                          label: const Text(
+                            'Volver a la evaluación',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12.5,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.navy,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -188,4 +233,133 @@ class ResultScreen extends StatelessWidget {
       ),
     );
   }
+
+  // ===============================================================
+  // FACTOR CHIP
+  // ===============================================================
+
+  Widget _buildFactorChip(DetectedFactor factor) {
+    final config = _factorConfig(factor.id);
+
+    return Chip(
+      avatar: Icon(config.icon, size: 15, color: config.color),
+      label: Text(
+        factor.nombre,
+        style: TextStyle(
+          color: config.color,
+          fontWeight: FontWeight.w700,
+          fontSize: 12,
+        ),
+      ),
+      backgroundColor: config.color.withOpacity(0.08),
+      side: BorderSide.none,
+    );
+  }
+
+  // ===============================================================
+  // RECOMMENDATION
+  // ===============================================================
+
+  Widget _buildRecommendation(int index, Recommendation recommendation) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 10,
+            backgroundColor: AppColors.sky,
+            child: Text(
+              '${index + 1}',
+              style: const TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w800,
+                color: AppColors.blue,
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Expanded(
+            child: Text(
+              recommendation.texto,
+              style: const TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: AppColors.ink,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===============================================================
+  // CONFIGURACIÓN VISUAL DE FACTORES
+  // ===============================================================
+
+  _FactorConfig _factorConfig(String id) {
+    switch (id) {
+      case 'cigarrillo':
+        return const _FactorConfig(
+          icon: Icons.smoking_rooms_rounded,
+          color: AppColors.coral,
+        );
+
+      case 'alcohol':
+        return const _FactorConfig(
+          icon: Icons.local_bar_rounded,
+          color: AppColors.amber,
+        );
+
+      case 'sedentarismo':
+        return const _FactorConfig(
+          icon: Icons.directions_walk_rounded,
+          color: AppColors.amber,
+        );
+
+      case 'presion_alta':
+        return const _FactorConfig(
+          icon: Icons.favorite_rounded,
+          color: AppColors.coral,
+        );
+
+      case 'glucosa':
+        return const _FactorConfig(
+          icon: Icons.water_drop_rounded,
+          color: AppColors.coral,
+        );
+
+      case 'colesterol':
+        return const _FactorConfig(
+          icon: Icons.bloodtype_rounded,
+          color: AppColors.amber,
+        );
+
+      case 'imc':
+        return const _FactorConfig(
+          icon: Icons.monitor_weight_rounded,
+          color: AppColors.amber,
+        );
+
+      default:
+        return const _FactorConfig(
+          icon: Icons.warning_amber_rounded,
+          color: AppColors.amber,
+        );
+    }
+  }
+}
+
+// ===============================================================
+// CONFIGURACIÓN INTERNA DEL CHIP
+// ===============================================================
+
+class _FactorConfig {
+  final IconData icon;
+  final Color color;
+
+  const _FactorConfig({required this.icon, required this.color});
 }

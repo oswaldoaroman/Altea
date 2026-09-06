@@ -1,10 +1,10 @@
+import 'package:altea/features/evaluation/screens/evaluation_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'package:altea/core/theme/colors.dart';
 import 'package:altea/core/widgets/bottom_nav.dart';
 
 import 'package:altea/features/home/screens/home_screen.dart';
-import 'package:altea/features/evaluation/screens/eval_screen.dart';
 import 'package:altea/features/information/screens/informes_screen.dart';
 import 'package:altea/features/chat_bot/screens/chat_screen.dart';
 import 'package:altea/features/profiles/screens/profile_screen.dart';
@@ -82,7 +82,7 @@ class _RootShellState extends State<RootShell> {
                     index: _index,
                     children: [
                       HomeScreen(onNavigate: _go),
-                      const EvalScreen(),
+                      EvaluationScreen(onNavigate: _go),
                       const InformesScreen(),
                       const ChatScreen(),
                       const ProfileScreen(),
