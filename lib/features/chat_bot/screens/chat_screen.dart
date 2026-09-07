@@ -1,4 +1,9 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+
 import 'package:altea/core/theme/colors.dart';
 import 'package:altea/core/widgets/app_card.dart';
 import 'package:altea/core/widgets/responsive_body.dart';
@@ -12,7 +17,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _Msg {
-  final String texto;
+  String texto;
   final bool esUsuario;
 
   _Msg(this.texto, this.esUsuario);
@@ -21,43 +26,158 @@ class _Msg {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
 
+  // ==========================================================
+  // MENSAJES
+  // ==========================================================
+
   final List<_Msg> _mensajes = [
     _Msg('Hola Isela, soy Altea. ¿Cómo te sientes hoy?', false),
   ];
 
+  // ==========================================================
+  // WEBSOCKET
+  // ==========================================================
+
+  WebSocketChannel? _channel;
+  StreamSubscription? _subscription;
+
   bool _cargando = false;
 
-  Future<void> _enviar() async {
+  // ==========================================================
+  // CONECTAR WEBSOCKET
+  // ==========================================================
+
+  void _conectarWebSocket() {
+    if (_channel != null) return;
+
+    try {
+      _channel = OllamaService.conectarWebSocket();
+
+      _subscription = _channel!.stream.listen(
+        _recibirMensaje,
+        onError: _manejarError,
+        onDone: _conexionTerminada,
+        cancelOnError: false,
+      );
+
+      debugPrint('WebSocket conectado.');
+    } on OllamaException catch (e) {
+      debugPrint('Error de Altea: ${e.mensaje}');
+      rethrow;
+    } catch (e) {
+      debugPrint('Error conectando WebSocket: $e');
+
+      throw OllamaException('No se pudo conectar con el servidor de Altea.');
+    }
+  }
+
+  // ==========================================================
+  // RECIBIR MENSAJE
+  // ==========================================================
+
+  void _recibirMensaje(dynamic data) {
+    if (!mounted) return;
+
+    try {
+      final mensaje = jsonDecode(data.toString());
+
+      final tipo = mensaje['type'];
+
+      // --------------------------------------------------------
+      // CHUNK
+      // --------------------------------------------------------
+
+      if (tipo == 'chunk') {
+        final contenido = mensaje['content']?.toString() ?? '';
+
+        if (contenido.isEmpty) return;
+
+        setState(() {
+          if (_mensajes.isNotEmpty && !_mensajes.last.esUsuario) {
+            _mensajes.last.texto += contenido;
+          }
+        });
+      }
+      // --------------------------------------------------------
+      // DONE
+      // --------------------------------------------------------
+      else if (tipo == 'done') {
+        setState(() {
+          _cargando = false;
+        });
+
+        debugPrint('Respuesta de Altea terminada.');
+      }
+      // --------------------------------------------------------
+      // ERROR
+      // --------------------------------------------------------
+      else if (tipo == 'error') {
+        final error = mensaje['message']?.toString() ?? 'Error desconocido.';
+
+        debugPrint('Error del servidor: $error');
+
+        _manejarError(OllamaException(error));
+      }
+    } catch (e) {
+      debugPrint('Error procesando mensaje WebSocket: $e');
+    }
+  }
+
+  // ==========================================================
+  // ENVIAR MENSAJE
+  // ==========================================================
+
+  void _enviar() {
     final texto = _controller.text.trim();
 
     if (texto.isEmpty || _cargando) return;
 
-    // Agregar mensaje del usuario
-    setState(() {
-      _mensajes.add(_Msg(texto, true));
-
-      _controller.clear();
-      _cargando = true;
-    });
-
     try {
-      // Construir el historial de conversación
+      // --------------------------------------------------------
+      // Conectar si todavía no existe conexión
+      // --------------------------------------------------------
+
+      _conectarWebSocket();
+
+      if (_channel == null) {
+        throw OllamaException('No se pudo conectar con el servidor de Altea.');
+      }
+
+      // --------------------------------------------------------
+      // Agregar mensaje del usuario
+      // --------------------------------------------------------
+
+      setState(() {
+        _mensajes.add(_Msg(texto, true));
+
+        // Crear mensaje vacío de Altea.
+        // Los chunks se agregarán aquí.
+        _mensajes.add(_Msg('', false));
+
+        _controller.clear();
+
+        _cargando = true;
+      });
+
+      // --------------------------------------------------------
+      // Construir historial
+      // --------------------------------------------------------
+
       final historial = _mensajes
+          .where((mensaje) => mensaje.texto.isNotEmpty)
           .map(
             (mensaje) =>
-                '${mensaje.esUsuario ? "Usuario" : "Altea"}: ${mensaje.texto}',
+                '${mensaje.esUsuario ? "Usuario" : "Altea"}: '
+                '${mensaje.texto}',
           )
           .join('\n');
 
+      // --------------------------------------------------------
+      // Prompt
+      // --------------------------------------------------------
+
       final prompt =
           '''
-Eres Altea, un asistente virtual de salud.
-
-Tu objetivo es orientar al usuario de forma clara, empática y responsable.
-
-No debes realizar diagnósticos médicos definitivos.
-Si el usuario describe síntomas potencialmente graves, recomienda buscar atención médica.
-
 Esta es la conversación actual:
 
 $historial
@@ -65,39 +185,124 @@ $historial
 Responde al último mensaje del usuario de forma natural y clara.
 ''';
 
-      final respuesta = await OllamaService.preguntar(prompt);
+      // --------------------------------------------------------
+      // Enviar prompt
+      // --------------------------------------------------------
+
+      OllamaService.enviarPrompt(_channel!, prompt);
+    } on OllamaException catch (e) {
+      debugPrint('Error de Altea: ${e.mensaje}');
 
       if (!mounted) return;
 
       setState(() {
-        _mensajes.add(_Msg(respuesta, false));
-
         _cargando = false;
+
+        _mensajes.add(_Msg(e.mensaje, false));
       });
     } catch (e) {
+      debugPrint('Error inesperado: $e');
+
       if (!mounted) return;
 
       setState(() {
-        _mensajes.add(
-          _Msg(
-            'Lo siento, no pude comunicarme con el servidor de Altea. '
-            'Por favor, inténtalo nuevamente.',
-            false,
-          ),
-        );
-
         _cargando = false;
-      });
 
-      debugPrint('Error Ollama: $e');
+        _mensajes.add(_Msg('Ocurrió un error inesperado.', false));
+      });
     }
   }
+
+  // ==========================================================
+  // ERROR WEBSOCKET
+  // ==========================================================
+
+  void _manejarError(dynamic error) {
+    debugPrint('Error WebSocket: $error');
+
+    if (!mounted) return;
+
+    final mensaje = error is OllamaException
+        ? error.mensaje
+        : 'Se perdió la conexión con el servidor de Altea.';
+
+    setState(() {
+      _cargando = false;
+
+      // Si existe una burbuja vacía de Altea,
+      // mostrar ahí el error.
+      if (_mensajes.isNotEmpty &&
+          !_mensajes.last.esUsuario &&
+          _mensajes.last.texto.isEmpty) {
+        _mensajes.last.texto = mensaje;
+      } else {
+        _mensajes.add(_Msg(mensaje, false));
+      }
+    });
+  }
+
+  // ==========================================================
+  // CONEXIÓN TERMINADA
+  // ==========================================================
+
+  void _conexionTerminada() {
+    debugPrint('WebSocket desconectado.');
+
+    _channel = null;
+    _subscription = null;
+
+    if (!mounted) return;
+
+    if (_cargando) {
+      setState(() {
+        _cargando = false;
+
+        if (_mensajes.isNotEmpty &&
+            !_mensajes.last.esUsuario &&
+            _mensajes.last.texto.isEmpty) {
+          _mensajes.last.texto =
+              'Se perdió la conexión con el servidor de Altea.';
+        }
+      });
+    }
+  }
+
+  // ==========================================================
+  // CERRAR WEBSOCKET
+  // ==========================================================
+
+  Future<void> _cerrarWebSocket() async {
+    try {
+      await _subscription?.cancel();
+
+      _subscription = null;
+
+      if (_channel != null) {
+        await OllamaService.cerrarWebSocket(_channel!);
+      }
+
+      _channel = null;
+    } catch (e) {
+      debugPrint('Error cerrando WebSocket: $e');
+    }
+  }
+
+  // ==========================================================
+  // DISPOSE
+  // ==========================================================
 
   @override
   void dispose() {
     _controller.dispose();
+
+    _cerrarWebSocket();
+
     super.dispose();
   }
+
+  // ==========================================================
+  // BUILD
+  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
@@ -111,50 +316,17 @@ Responde al último mensaje del usuario de forma natural y clara.
               subtitle: 'Asistente de salud',
             ),
 
+            // ==================================================
+            // MENSAJES
+            // ==================================================
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 18,
                   vertical: 10,
                 ),
-                itemCount: _mensajes.length + (_cargando ? 1 : 0),
+                itemCount: _mensajes.length,
                 itemBuilder: (context, i) {
-                  // Indicador de carga
-                  if (_cargando && i == _mensajes.length) {
-                    return Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.ink.withOpacity(0.06),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: const SizedBox(
-                          width: 35,
-                          height: 20,
-                          child: Center(
-                            child: SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-
                   final m = _mensajes[i];
 
                   return Align(
@@ -181,20 +353,39 @@ Responde al último mensaje del usuario de forma natural y clara.
                                 ),
                               ],
                       ),
-                      child: Text(
-                        m.texto,
-                        style: TextStyle(
-                          color: m.esUsuario ? Colors.white : AppColors.ink,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      child: m.texto.isEmpty
+                          ? const SizedBox(
+                              width: 35,
+                              height: 20,
+                              child: Center(
+                                child: SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Text(
+                              m.texto,
+                              style: TextStyle(
+                                color: m.esUsuario
+                                    ? Colors.white
+                                    : AppColors.ink,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                     ),
                   );
                 },
               ),
             ),
 
+            // ==================================================
+            // INPUT
+            // ==================================================
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 8, 18, 16),
               child: Row(

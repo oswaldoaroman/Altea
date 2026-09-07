@@ -1,38 +1,67 @@
+import 'dart:async';
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
+import 'package:web_socket_channel/web_socket_channel.dart';
+
+// ==========================================================
+// EXCEPCIÓN PERSONALIZADA
+// ==========================================================
+
+class OllamaException implements Exception {
+  final String mensaje;
+
+  OllamaException(this.mensaje);
+
+  @override
+  String toString() => mensaje;
+}
 
 class OllamaService {
-  // Android Emulator
-  static const String _baseUrl = 'http://127.0.0.1:8000';
+  static const String _wsUrl = 'ws://127.0.0.1:8000/ollama/ws';
 
-  // Si utilizas un dispositivo físico, cambia 10.0.2.2
-  // por la IP de tu PC en la red local.
-  //
-  // Ejemplo:
-  // static const String _baseUrl = 'http://192.168.1.100:8000';
+  // ==========================================================
+  // WEBSOCKET
+  // ==========================================================
 
-  static Future<String> preguntar(String prompt) async {
-    final url = Uri.parse('$_baseUrl/ollama/ask');
-
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'prompt': prompt, 'stream': false}),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      return data['result'] as String;
-    }
-
+  static WebSocketChannel conectarWebSocket() {
     try {
-      final data = jsonDecode(response.body);
+      final uri = Uri.parse(_wsUrl);
 
-      throw Exception(data['detail'] ?? 'Error al comunicarse con Altea.');
-    } catch (_) {
-      throw Exception('Error del servidor: ${response.statusCode}');
+      return WebSocketChannel.connect(uri);
+    } catch (e) {
+      throw OllamaException('No se pudo conectar con el servidor de Altea.');
+    }
+  }
+
+  // ==========================================================
+  // ENVIAR PROMPT
+  // ==========================================================
+
+  static void enviarPrompt(WebSocketChannel channel, String prompt) {
+    try {
+      if (prompt.trim().isEmpty) {
+        throw OllamaException('El prompt no puede estar vacío.');
+      }
+
+      channel.sink.add(jsonEncode({'prompt': prompt}));
+    } catch (e) {
+      if (e is OllamaException) {
+        rethrow;
+      }
+
+      throw OllamaException('No se pudo enviar el mensaje a Altea.');
+    }
+  }
+
+  // ==========================================================
+  // CERRAR CONEXIÓN
+  // ==========================================================
+
+  static Future<void> cerrarWebSocket(WebSocketChannel channel) async {
+    try {
+      await channel.sink.close();
+    } catch (e) {
+      throw OllamaException('No se pudo cerrar la conexión con Altea.');
     }
   }
 }
