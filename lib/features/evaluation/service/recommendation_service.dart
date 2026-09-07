@@ -34,7 +34,8 @@ class RecommendationService {
     }
 
     // Sedentarismo
-    final sedentario = actividadFisica == 0;
+    final sedentario =
+        actividadFisica == 2; // 1 = Activo, 2 = Moderado, 3 = Sedentario
 
     if (sedentario) {
       factores.add(

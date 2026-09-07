@@ -142,7 +142,6 @@ class EvalScreenState extends State<EvalScreen> {
                             apHi: presionValue['apHi'],
                             apLo: presionValue['apLo'],
                           );
-
                           // =================================================
                           // 3. GENERAR RECOMENDACIONES
                           // =================================================
