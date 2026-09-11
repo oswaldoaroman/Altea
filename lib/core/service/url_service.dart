@@ -1,6 +1,7 @@
 import 'package:url_launcher/url_launcher.dart';
 
 class UrlService {
+  /// Abre una URL en una aplicación externa, normalmente el navegador.
   static Future<bool> abrirUrl(String link) async {
     final Uri url = Uri.parse(link);
 
@@ -12,15 +13,30 @@ class UrlService {
     }
   }
 
-  static Future<void> abrirGoogleMaps(String busqueda) async {
-    final Uri url = Uri.parse(
-      'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(busqueda)}',
-    );
+  /// Abre una búsqueda en Google Maps.
+  static Future<bool> abrirGoogleMaps(String busqueda) async {
+    final Uri url = Uri.https('www.google.com', '/maps/search/', {
+      'api': '1',
+      'query': busqueda,
+    });
 
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      throw Exception('No se pudo abrir Google Maps');
+    try {
+      return await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      print('Error al abrir Google Maps: $e');
+      return false;
+    }
+  }
+
+  /// Abre una búsqueda de Google.
+  static Future<bool> buscarEnGoogle(String busqueda) async {
+    final Uri url = Uri.https('www.google.com', '/search', {'q': busqueda});
+
+    try {
+      return await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      print('Error al buscar en Google: $e');
+      return false;
     }
   }
 }
