@@ -1,6 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:web_socket_channel/web_socket_channel.dart';
+
+// ==========================================================
+// EXCEPCIÓN PERSONALIZADA
+// ==========================================================
 
 class OllamaException implements Exception {
   final String mensaje;
@@ -15,7 +20,7 @@ class OllamaService {
   static const String _wsUrl = 'ws://127.0.0.1:8000/ollama/ws';
 
   // ==========================================================
-  // CONECTAR
+  // WEBSOCKET
   // ==========================================================
 
   static WebSocketChannel conectarWebSocket() {
@@ -29,19 +34,27 @@ class OllamaService {
   }
 
   // ==========================================================
-  // ENVIAR MENSAJE
+  // ENVIAR PROMPT
   // ==========================================================
 
-  static void enviarMensaje(WebSocketChannel channel, String contenido) {
-    if (contenido.trim().isEmpty) {
-      throw OllamaException('El mensaje no puede estar vacío.');
-    }
+  static void enviarPrompt(WebSocketChannel channel, String prompt) {
+    try {
+      if (prompt.trim().isEmpty) {
+        throw OllamaException('El prompt no puede estar vacío.');
+      }
 
-    channel.sink.add(jsonEncode({'type': 'message', 'content': contenido}));
+      channel.sink.add(jsonEncode({'prompt': prompt}));
+    } catch (e) {
+      if (e is OllamaException) {
+        rethrow;
+      }
+
+      throw OllamaException('No se pudo enviar el mensaje a Altea.');
+    }
   }
 
   // ==========================================================
-  // CERRAR
+  // CERRAR CONEXIÓN
   // ==========================================================
 
   static Future<void> cerrarWebSocket(WebSocketChannel channel) async {

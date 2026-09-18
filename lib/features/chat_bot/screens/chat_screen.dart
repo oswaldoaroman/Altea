@@ -8,7 +8,6 @@ import 'package:altea/core/theme/colors.dart';
 import 'package:altea/core/widgets/app_card.dart';
 import 'package:altea/core/widgets/responsive_body.dart';
 import 'package:altea/features/chat_bot/service/ollama_service.dart';
-import 'package:altea/features/chat_bot/models/evaluation_state.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -28,12 +27,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
 
   // ==========================================================
-  // EVALUACIÓN
-  // ==========================================================
-
-  final EvaluationState _evaluation = EvaluationState();
-
-  // ==========================================================
   // MENSAJES
   // ==========================================================
 
@@ -46,19 +39,16 @@ class _ChatScreenState extends State<ChatScreen> {
   // ==========================================================
 
   WebSocketChannel? _channel;
-
   StreamSubscription? _subscription;
 
   bool _cargando = false;
 
   // ==========================================================
-  // CONECTAR
+  // CONECTAR WEBSOCKET
   // ==========================================================
 
   void _conectarWebSocket() {
-    if (_channel != null) {
-      return;
-    }
+    if (_channel != null) return;
 
     try {
       _channel = OllamaService.conectarWebSocket();
@@ -73,7 +63,6 @@ class _ChatScreenState extends State<ChatScreen> {
       debugPrint('WebSocket conectado.');
     } on OllamaException catch (e) {
       debugPrint('Error de Altea: ${e.mensaje}');
-
       rethrow;
     } catch (e) {
       debugPrint('Error conectando WebSocket: $e');
@@ -87,72 +76,47 @@ class _ChatScreenState extends State<ChatScreen> {
   // ==========================================================
 
   void _recibirMensaje(dynamic data) {
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     try {
       final mensaje = jsonDecode(data.toString());
 
-      if (mensaje is! Map<String, dynamic>) {
-        debugPrint('Mensaje WebSocket inválido.');
-
-        return;
-      }
-
       final tipo = mensaje['type'];
 
-      switch (tipo) {
-        // ====================================================
-        // CHUNK
-        // ====================================================
+      // --------------------------------------------------------
+      // CHUNK
+      // --------------------------------------------------------
 
-        case 'chunk':
-          _procesarChunk(mensaje);
-          break;
+      if (tipo == 'chunk') {
+        final contenido = mensaje['content']?.toString() ?? '';
 
-        // ====================================================
-        // EVALUATION START
-        // ====================================================
+        if (contenido.isEmpty) return;
 
-        case 'evaluation_start':
-          _procesarEvaluationStart();
-          break;
+        setState(() {
+          if (_mensajes.isNotEmpty && !_mensajes.last.esUsuario) {
+            _mensajes.last.texto += contenido;
+          }
+        });
+      }
+      // --------------------------------------------------------
+      // DONE
+      // --------------------------------------------------------
+      else if (tipo == 'done') {
+        setState(() {
+          _cargando = false;
+        });
 
-        // ====================================================
-        // EVALUATION DATA
-        // ====================================================
+        debugPrint('Respuesta de Altea terminada.');
+      }
+      // --------------------------------------------------------
+      // ERROR
+      // --------------------------------------------------------
+      else if (tipo == 'error') {
+        final error = mensaje['message']?.toString() ?? 'Error desconocido.';
 
-        case 'evaluation_data':
-          _procesarEvaluationData(mensaje);
-          break;
+        debugPrint('Error del servidor: $error');
 
-        // ====================================================
-        // EVALUATION COMPLETE
-        // ====================================================
-
-        case 'evaluation_complete':
-          _procesarEvaluationComplete(mensaje);
-          break;
-
-        // ====================================================
-        // DONE
-        // ====================================================
-
-        case 'done':
-          _procesarDone();
-          break;
-
-        // ====================================================
-        // ERROR
-        // ====================================================
-
-        case 'error':
-          _procesarError(mensaje);
-          break;
-
-        default:
-          debugPrint('Tipo de mensaje desconocido: $tipo');
+        _manejarError(OllamaException(error));
       }
     } catch (e) {
       debugPrint('Error procesando mensaje WebSocket: $e');
@@ -160,217 +124,34 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   // ==========================================================
-  // CHUNK
-  // ==========================================================
-
-  void _procesarChunk(Map<String, dynamic> mensaje) {
-    final contenido = mensaje['content']?.toString() ?? '';
-
-    if (contenido.isEmpty) {
-      return;
-    }
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      if (_mensajes.isNotEmpty && !_mensajes.last.esUsuario) {
-        _mensajes.last.texto += contenido;
-      } else {
-        _mensajes.add(_Msg(contenido, false));
-      }
-    });
-  }
-
-  // ==========================================================
-  // EVALUATION START
-  // ==========================================================
-
-  void _procesarEvaluationStart() {
-    debugPrint('Altea inició una evaluación.');
-
-    _evaluation.iniciar();
-
-    debugPrint(
-      'Estado inicial: '
-      '${_evaluation.toJson()}',
-    );
-  }
-
-  // ==========================================================
-  // EVALUATION DATA
-  // ==========================================================
-
-  void _procesarEvaluationData(Map<String, dynamic> mensaje) {
-    final field = mensaje['field']?.toString();
-
-    final value = mensaje['value'];
-
-    if (field == null || field.isEmpty) {
-      debugPrint('evaluation_data sin field.');
-
-      return;
-    }
-
-    debugPrint(
-      'Dato recibido: '
-      '$field = $value',
-    );
-
-    final valido = _evaluation.asignarDato(field, value);
-
-    if (valido == false) {
-      debugPrint(
-        'No se pudo guardar el dato: '
-        '$field = $value',
-      );
-
-      return;
-    }
-
-    debugPrint(
-      'Estado evaluación: '
-      '${_evaluation.toJson()}',
-    );
-  }
-
-  // ==========================================================
-  // EVALUATION COMPLETE
-  // ==========================================================
-
-  void _procesarEvaluationComplete(Map<String, dynamic> mensaje) {
-    debugPrint('Servidor indicó que la evaluación terminó.');
-
-    debugPrint(
-      'Datos locales: '
-      '${_evaluation.toJson()}',
-    );
-
-    if (!_evaluation.completa) {
-      debugPrint('La evaluación está incompleta.');
-
-      _mostrarMensajeAltea(
-        'Todavía me faltan algunos datos para '
-        'poder completar tu evaluación.',
-      );
-
-      return;
-    }
-
-    _ejecutarDecisionTree();
-  }
-
-  // ==========================================================
-  // EJECUTAR DECISION TREE
-  // ==========================================================
-
-  void _ejecutarDecisionTree() {
-    if (!_evaluation.completa) {
-      debugPrint('No se puede ejecutar el Decision Tree.');
-
-      return;
-    }
-
-    debugPrint('========================================');
-
-    debugPrint('EJECUTANDO DECISION TREE LOCAL');
-
-    debugPrint('========================================');
-
-    debugPrint('Datos: ${_evaluation.toJson()}');
-
-    /*
-     * AQUÍ conectaremos tu EvaluationService REAL.
-     *
-     * Ejemplo conceptual:
-     *
-     * final resultado =
-     *     EvaluacionService.evaluar(
-     *       age: edadUsuario,
-     *       weight: _evaluation.peso!,
-     *       height: _evaluation.altura!,
-     *       cholesterol: _evaluation.colesterol!,
-     *       gluc: _evaluation.glucosa!,
-     *       smoke: _evaluation.fuma!,
-     *       alco: _evaluation.consumeAlcohol!,
-     *       active: _evaluation.actividadFisica!,
-     *       apHi: _evaluation.presionSistolica,
-     *       apLo: _evaluation.presionDiastolica,
-     *     );
-     *
-     * Después navegaremos a ResultScreen.
-     */
-
-    _mostrarMensajeAltea(
-      'He recopilado todos tus datos. '
-      'Ahora voy a calcular tu evaluación.',
-    );
-  }
-
-  // ==========================================================
-  // DONE
-  // ==========================================================
-
-  void _procesarDone() {
-    debugPrint('Respuesta de Altea terminada.');
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _cargando = false;
-    });
-  }
-
-  // ==========================================================
-  // ERROR
-  // ==========================================================
-
-  void _procesarError(Map<String, dynamic> mensaje) {
-    final error = mensaje['message']?.toString() ?? 'Error desconocido.';
-
-    debugPrint('Error del servidor: $error');
-
-    _manejarError(OllamaException(error));
-  }
-
-  // ==========================================================
-  // MOSTRAR MENSAJE DE ALTEA
-  // ==========================================================
-
-  void _mostrarMensajeAltea(String texto) {
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _mensajes.add(_Msg(texto, false));
-    });
-  }
-
-  // ==========================================================
-  // ENVIAR
+  // ENVIAR MENSAJE
   // ==========================================================
 
   void _enviar() {
     final texto = _controller.text.trim();
 
-    if (texto.isEmpty || _cargando) {
-      return;
-    }
+    if (texto.isEmpty || _cargando) return;
 
     try {
+      // --------------------------------------------------------
+      // Conectar si todavía no existe conexión
+      // --------------------------------------------------------
+
       _conectarWebSocket();
 
       if (_channel == null) {
         throw OllamaException('No se pudo conectar con el servidor de Altea.');
       }
 
+      // --------------------------------------------------------
+      // Agregar mensaje del usuario
+      // --------------------------------------------------------
+
       setState(() {
         _mensajes.add(_Msg(texto, true));
 
+        // Crear mensaje vacío de Altea.
+        // Los chunks se agregarán aquí.
         _mensajes.add(_Msg('', false));
 
         _controller.clear();
@@ -378,13 +159,41 @@ class _ChatScreenState extends State<ChatScreen> {
         _cargando = true;
       });
 
-      OllamaService.enviarMensaje(_channel!, texto);
+      // --------------------------------------------------------
+      // Construir historial
+      // --------------------------------------------------------
+
+      final historial = _mensajes
+          .where((mensaje) => mensaje.texto.isNotEmpty)
+          .map(
+            (mensaje) =>
+                '${mensaje.esUsuario ? "Usuario" : "Altea"}: '
+                '${mensaje.texto}',
+          )
+          .join('\n');
+
+      // --------------------------------------------------------
+      // Prompt
+      // --------------------------------------------------------
+
+      final prompt =
+          '''
+Esta es la conversación actual:
+
+$historial
+
+Responde al último mensaje del usuario de forma natural y clara.
+''';
+
+      // --------------------------------------------------------
+      // Enviar prompt
+      // --------------------------------------------------------
+
+      OllamaService.enviarPrompt(_channel!, prompt);
     } on OllamaException catch (e) {
       debugPrint('Error de Altea: ${e.mensaje}');
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       setState(() {
         _cargando = false;
@@ -394,9 +203,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       debugPrint('Error inesperado: $e');
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       setState(() {
         _cargando = false;
@@ -413,9 +220,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _manejarError(dynamic error) {
     debugPrint('Error WebSocket: $error');
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     final mensaje = error is OllamaException
         ? error.mensaje
@@ -424,6 +229,8 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _cargando = false;
 
+      // Si existe una burbuja vacía de Altea,
+      // mostrar ahí el error.
       if (_mensajes.isNotEmpty &&
           !_mensajes.last.esUsuario &&
           _mensajes.last.texto.isEmpty) {
@@ -444,9 +251,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _channel = null;
     _subscription = null;
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     if (_cargando) {
       setState(() {
@@ -511,6 +316,9 @@ class _ChatScreenState extends State<ChatScreen> {
               subtitle: 'Asistente de salud',
             ),
 
+            // ==================================================
+            // MENSAJES
+            // ==================================================
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(
@@ -575,6 +383,9 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
 
+            // ==================================================
+            // INPUT
+            // ==================================================
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 8, 18, 16),
               child: Row(
