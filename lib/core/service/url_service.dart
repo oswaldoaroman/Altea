@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UrlService {
@@ -8,7 +9,7 @@ class UrlService {
     try {
       return await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {
-      print('Error al abrir URL: $e');
+      debugPrint('Error al abrir URL: $e');
       return false;
     }
   }
@@ -23,7 +24,7 @@ class UrlService {
     try {
       return await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {
-      print('Error al abrir Google Maps: $e');
+      debugPrint('Error al abrir Google Maps: $e');
       return false;
     }
   }
@@ -35,7 +36,7 @@ class UrlService {
     try {
       return await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {
-      print('Error al buscar en Google: $e');
+      debugPrint('Error al buscar en Google: $e');
       return false;
     }
   }

@@ -4,7 +4,7 @@ import 'package:altea/features/evaluation/models/evaluation_input.dart';
 import 'package:altea/features/evaluation/service/evaluacion_service.dart';
 import 'package:altea/features/evaluation/service/evaluation_engine.dart';
 
-import 'package:altea/test/features/evaluation/case.dart';
+import 'cases.dart';
 
 void main() {
   group('EvaluationEngine', () {
