@@ -14,6 +14,8 @@ class ResultScreen extends StatelessWidget {
     required this.recommendationResult,
     required this.onBack,
     required this.onNavigate,
+    this.mostrarBotonPreguntarAltea = true,
+    this.textoBotonVolver = 'Volver a la evaluación',
   });
 
   final double resultado;
@@ -22,6 +24,18 @@ class ResultScreen extends StatelessWidget {
 
   final VoidCallback onBack;
   final void Function(int) onNavigate;
+
+  /// Si es `true`, se muestra el botón "Preguntar a Altea".
+  ///
+  /// Desde el formulario se muestra (navega a la pestaña del chat).
+  /// Desde el chat se oculta (ya estamos en el chat).
+  final bool mostrarBotonPreguntarAltea;
+
+  /// Texto del botón inferior de "volver".
+  ///
+  /// Desde el formulario: "Volver a la evaluación".
+  /// Desde el chat: "Volver al chat".
+  final String textoBotonVolver;
 
   @override
   Widget build(BuildContext context) {
@@ -154,35 +168,37 @@ class ResultScreen extends StatelessWidget {
                       // =====================================================
                       Row(
                         children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () {
-                                onNavigate(3);
-                              },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.blue,
-                                side: const BorderSide(
-                                  color: AppColors.blue,
-                                  width: 1.5,
+                          if (mostrarBotonPreguntarAltea) ...[
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  onNavigate(3);
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppColors.blue,
+                                  side: const BorderSide(
+                                    color: AppColors.blue,
+                                    width: 1.5,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                              ),
-                              child: const Text(
-                                'Preguntar a Altea',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 12.5,
+                                child: const Text(
+                                  'Preguntar a Altea',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 12.5,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
 
-                          const SizedBox(width: 10),
+                            const SizedBox(width: 10),
+                          ],
 
                           Expanded(
                             child: PillButton(
@@ -208,9 +224,9 @@ class ResultScreen extends StatelessWidget {
                         child: TextButton.icon(
                           onPressed: onBack,
                           icon: const Icon(Icons.arrow_back_rounded, size: 18),
-                          label: const Text(
-                            'Volver a la evaluación',
-                            style: TextStyle(
+                          label: Text(
+                            textoBotonVolver,
+                            style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 12.5,
                             ),

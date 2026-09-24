@@ -2,25 +2,67 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-/// Devuelve la URL por defecto del WebSocket según la plataforma.
+// ==========================================================
+// CONFIGURACIÓN
+// ==========================================================
+
+/// Nombre MagicDNS del servidor Altea en Tailscale.
 ///
-/// En Android emulador, `127.0.0.1` apunta al propio emulador, no al
-/// host. El alias `10.0.2.2` apunta al host.
+/// Se usa por defecto cuando no hay `--dart-define=WS_URL=...`.
 ///
-/// En iOS simulador, web y desktop, `127.0.0.1` funciona directamente.
+/// Para cambiarlo:
+/// - Renombra la máquina en el admin console de Tailscale, y
+/// - Actualiza esta constante.
+const String _tailscaleHost = 'archlinux.tail9963d9.ts.net';
+
+/// Puerto del backend FastAPI.
+const int _port = 8000;
+
+/// Path del WebSocket.
+const String _path = '/ollama/ws';
+
+// ==========================================================
+// API PÚBLICA
+// ==========================================================
+
+/// Devuelve la URL del WebSocket a usar.
 ///
-/// En dispositivo físico, hay que sustituir por la IP del PC.
+/// Prioridad:
+/// 1. `--dart-define=WS_URL=...` (override total).
+/// 2. `--dart-define=WS_HOST=...` (override solo del host).
+/// 3. Por plataforma:
+///    - Web: `127.0.0.1` (desarrollo).
+///    - Android: MagicDNS de Tailscale.
+///    - iOS/desktop: `127.0.0.1` (desarrollo).
 String defaultWsUrl() {
-  const port = 8000;
-  const path = '/ollama/ws';
+  // ------------------------------------------------------
+  // 1. Override total
+  // ------------------------------------------------------
+
+  const fullOverride = String.fromEnvironment('WS_URL');
+  if (fullOverride.isNotEmpty) {
+    return fullOverride;
+  }
+
+  // ------------------------------------------------------
+  // 2. Override solo del host
+  // ------------------------------------------------------
+
+  const hostOverride = String.fromEnvironment('WS_HOST');
+  final host = hostOverride.isNotEmpty ? hostOverride : _tailscaleHost;
+
+  // ------------------------------------------------------
+  // 3. Por plataforma
+  // ------------------------------------------------------
 
   if (kIsWeb) {
-    return 'ws://127.0.0.1:$port$path';
+    return 'ws://127.0.0.1:$_port$_path';
   }
 
   if (Platform.isAndroid) {
-    return 'ws://10.0.2.2:$port$path';
+    return 'ws://$host:$_port$_path';
   }
 
-  return 'ws://127.0.0.1:$port$path';
+  // iOS, macOS, Linux, Windows: por defecto local.
+  return 'ws://127.0.0.1:$_port$_path';
 }

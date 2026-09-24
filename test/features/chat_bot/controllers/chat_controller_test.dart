@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:altea/features/chat_bot/controllers/chat_controller.dart';
-import 'package:altea/features/chat_bot/models/chat_message.dart';
 import 'package:altea/features/chat_bot/service/ollama_service.dart';
 
 import '../service/fake_websocket.dart';

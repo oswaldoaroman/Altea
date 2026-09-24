@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/material.dart';
 import 'package:stream_channel/stream_channel.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -76,6 +78,10 @@ class OllamaService {
     }
 
     _setState(ConnectionState.connecting);
+
+    debugPrint('═══════════════════════════════════════');
+    debugPrint('OllamaService: intentando conectar a $_url');
+    debugPrint('═══════════════════════════════════════');
 
     try {
       final uri = Uri.parse(_url);

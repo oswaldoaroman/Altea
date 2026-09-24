@@ -84,7 +84,7 @@ class _RootShellState extends State<RootShell> {
                       HomeScreen(onNavigate: _go),
                       EvaluationScreen(onNavigate: _go),
                       const InformesScreen(),
-                      const ChatScreen(),
+                      ChatScreen(onNavigate: _go),
                       const ProfileScreen(),
                     ],
                   ),
