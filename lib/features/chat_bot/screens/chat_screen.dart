@@ -10,7 +10,6 @@ import 'chat_conversation_view.dart';
 /// Alterna entre dos vistas internas según `ChatController.modo`:
 /// - `chat` → `ChatConversationView` (burbujas + input).
 /// - `resultado` → `ResultScreen` (reutilizada del formulario).
-///
 /// La barra de navegación inferior se mantiene siempre, porque este
 /// widget sigue siendo una pestaña del `IndexedStack` del `RootShell`.
 class ChatScreen extends StatefulWidget {

@@ -15,7 +15,8 @@ import '../models/chat_message.dart';
 /// - El botón de enviar.
 ///
 /// NO conoce WebSocket, NO conoce el controller internamente.
-/// Recibe el controller y lo escucha.
+/// Recibe el controller y lo escucha
+/// Solo gestiona el chat
 class ChatConversationView extends StatefulWidget {
   const ChatConversationView({super.key, required this.controller});
 

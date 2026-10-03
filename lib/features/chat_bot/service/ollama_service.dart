@@ -9,10 +9,10 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../models/ws_message.dart';
 import 'ws_url.dart';
 
+//Ultima version del gestor del ws
 // ==========================================================
 // EXCEPCIÓN
 // ==========================================================
-
 class OllamaException implements Exception {
   final String mensaje;
 
@@ -25,13 +25,11 @@ class OllamaException implements Exception {
 // ==========================================================
 // ESTADO DE CONEXIÓN
 // ==========================================================
-
 enum ConnectionState { disconnected, connecting, connected, error }
 
 // ==========================================================
 // SERVICIO
 // ==========================================================
-
 /// Cliente WebSocket para el chatbot de Altea.
 class OllamaService {
   final String _url;

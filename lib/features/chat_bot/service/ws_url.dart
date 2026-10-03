@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+//Configurar en el futuro para otras plataformas
 // ==========================================================
 // CONFIGURACIÓN
 // ==========================================================
