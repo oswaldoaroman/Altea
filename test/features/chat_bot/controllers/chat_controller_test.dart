@@ -5,6 +5,7 @@ import 'package:altea/features/chat_bot/service/ollama_service.dart';
 
 import '../service/fake_websocket.dart';
 
+//test del cahtbot
 void main() {
   late FakeWebSocketChannel fakeChannel;
   late OllamaService service;
